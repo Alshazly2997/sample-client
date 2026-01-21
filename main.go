@@ -11,6 +11,7 @@ import (
 var token string
 
 func main() {
+	var name, passowrd string
 	response, err := http.Get("http://localhost:8080")
 	if err != nil {
 		fmt.Printf("The http request failed %v", err)
@@ -19,7 +20,11 @@ func main() {
 		fmt.Println(string(data))
 	}
 
-	jsonData := map[string]string{"name": "Mohamed", "password": "1234"}
+	fmt.Println("Please enter your name and then your password:")
+	fmt.Scan(&name)
+	fmt.Scan(&passowrd)
+
+	jsonData := map[string]string{"name": name, "password": passowrd}
 	jsonValue, _ := json.Marshal(jsonData)
 	response, err = http.Post("http://localhost:8080/auth", "application/json", bytes.NewBuffer(jsonValue))
 	if err != nil {
