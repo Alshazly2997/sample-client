@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"embed"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -9,11 +10,8 @@ import (
 	"net/http"
 )
 
-func greetingHandler(w http.ResponseWriter, r *http.Request) {
-	var greeting = "Hello World!"
-	fmt.Fprintln(w, greeting)
-
-}
+//go:embed Templates
+var Templates embed.FS
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
@@ -28,9 +26,9 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		tokenString, _ := ioutil.ReadAll(response.Body)
 
 		http.SetCookie(w, &http.Cookie{Name: "jwt_token", Value: string(tokenString)})
-		http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 	} else {
-		template, _ := template.ParseFiles("login.html")
+		template, _ := template.ParseFS(Templates, "Templates/login.html")
 		template.Execute(w, nil)
 	}
 
@@ -54,9 +52,13 @@ func dashboardHandler(w http.ResponseWriter, r *http.Request) {
 		var data User
 		body, _ := ioutil.ReadAll(response.Body)
 		json.Unmarshal(body, &data)
-		fmt.Println(data.Name)
-		template, _ := template.ParseFiles("dashboard.html")
-		template.Execute(w, data)
+		if data.Password == " " {
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+		} else {
+			template, _ := template.ParseFS(Templates, "Templates/dashboard.html")
+			template.Execute(w, data)
+		}
+
 	}
 
 }

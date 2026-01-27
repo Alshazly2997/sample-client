@@ -14,9 +14,8 @@ type User struct {
 
 func main() {
 
-	http.HandleFunc("/", greetingHandler)
+	http.HandleFunc("/", dashboardHandler)
 	http.HandleFunc("/login", loginHandler)
-	http.HandleFunc("/dashboard", dashboardHandler)
 
 	err := http.ListenAndServe("localhost:3000", http.DefaultServeMux)
 	if err != nil {
